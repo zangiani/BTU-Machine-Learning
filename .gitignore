@@ -1,0 +1,22 @@
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE & Editor
+.idea/
+.vscode/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Large files & Textbooks (PDF, DOCX)
+*.pdf
+*.docx
+how_to_lecture*
+
+# Instructor internal teaching materials
+*lecture_script*
+*lesson_plan*
+*assessment*
