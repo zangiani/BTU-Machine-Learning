@@ -445,104 +445,17 @@
 
   <!-- Navigation Tabs -->
   <div class="tabs-nav">
-    <button class="tab-btn active" onclick="switchTab('tab-week2')">📘 II კვირა: მომზადება & შეფასება</button>
+    <button class="tab-btn active" onclick="switchTab('tab-week3')">📙 III კვირა: მეტრიკები, ROC & PCA</button>
+    <button class="tab-btn" onclick="switchTab('tab-week2')">📘 II კვირა: პრეპროცესინგი & გაჟონვა</button>
     <button class="tab-btn" onclick="switchTab('tab-week1')">📗 I კვირა: მსგავსება & kNN</button>
     <button class="tab-btn" onclick="switchTab('tab-formulas')">⚡ ფორმულების შპარგალკა</button>
     <button class="tab-btn" onclick="switchTab('tab-code')">💻 Scikit-Learn Cheat-Sheet</button>
   </div>
 
   <!-- ============================================================ -->
-  <!-- TAB 1: WEEK 2 (DATA PREPROCESSING & MODEL EVALUATION)         -->
+  <!-- TAB 0: WEEK 3 (METRICS, ROC/AUC & PCA)                        -->
   <!-- ============================================================ -->
-  <div id="tab-week2" class="tab-content active">
-
-    <!-- Section 1: Preprocessing -->
-    <div class="grid">
-      <!-- StandardScaler -->
-      <div class="card card-cyan">
-        <h3>StandardScaler (სტანდარტიზაცია) <span class="badge badge-cyan">Recipe 4.2</span></h3>
-        <p style="font-size:0.88rem; color:var(--text-muted);">ცვლის მახასიათებელს ისე, რომ საშუალო გახდეს 0, ხოლო სტანდარტული გადახრა — 1.</p>
-        <div class="formula-box">
-          $$z = \frac{x - \mu}{\sigma}$$
-        </div>
-        <ul class="details">
-          <li><strong>$\mu$ (Mean):</strong> სვეტის საშუალო არითმეტიკული.</li>
-          <li><strong>$\sigma$ (Std Dev):</strong> მონაცემთა გაბნევის საზომი (დისპერსიის ფესვი).</li>
-          <li><strong>რატომ kNN-ისთვის?</strong> თუ ხელფასი არის 5,000 და ასაკი 30, ევკლიდურ მანძილში ხელფასი სრულად „ჩაყლაპავს“ ასაკს. სტანდარტიზაცია ყველა სვეტს ერთ ენაზე ამეტყველებს!</li>
-        </ul>
-        <div class="code-block">scaler = StandardScaler()<br>X_scaled = scaler.fit_transform(X)</div>
-      </div>
-
-      <!-- MinMaxScaler -->
-      <div class="card card-indigo">
-        <h3>MinMaxScaler (ნორმალიზაცია) <span class="badge badge-cyan">Recipe 4.1</span></h3>
-        <p style="font-size:0.88rem; color:var(--text-muted);">მონაცემებს კუმშავს მკაცრად [0, 1] (ან [-1, 1]) შუალედში.</p>
-        <div class="formula-box">
-          $$x_{scaled} = \frac{x - x_{min}}{x_{max} - x_{min}}$$
-        </div>
-        <ul class="details">
-          <li><strong>როდის ვიყენებთ?</strong> როცა ვიცით მკაცრი საზღვრები (მაგ. გამოსახულების პიქსელები 0-255) და არ გვინდა უარყოფითი რიცხვები.</li>
-          <li><strong>სისუსტე:</strong> ზემგრძნობიარეა ამოვარდნილ წერტილებზე (Outliers) — 1 უზარმაზარი რიცხვი ყველა დანარჩენს ნულთან მიჭყლეტს.</li>
-        </ul>
-        <div class="code-block">scaler = MinMaxScaler()<br>X_scaled = scaler.fit_transform(X)</div>
-      </div>
-
-      <!-- Missing Values & Encoding -->
-      <div class="card card-amber">
-        <h3>გაწმენდა & კოდირება <span class="badge badge-amber">Recipe 3.11 & 5.1</span></h3>
-        <ul class="details">
-          <li><strong>SimpleImputer (გამოტოვებული მნიშვნელობები):</strong>
-            <br>• <code>strategy='mean'</code> (საშუალო) / <code>'median'</code> (მედიანა — გამძლეა Outlier-ებზე).
-            <br>• კატეგორიულისთვის: <code>strategy='most_frequent'</code> (მოდა).
-          </li>
-          <li><strong>One-Hot Encoding (კატეგორიები $\to$ რიცხვები):</strong>
-            <br>თუ სვეტში წერია: <em>["თბილისი", "ბათუმი", "ქუთაისი"]</em>, იქმნება 3 ახალი ორობითი სვეტი (0 ან 1).
-          </li>
-        </ul>
-        <div class="callout-warn">
-          ⚠️ <strong>ოქროს წესი:</strong> არასოდეს გამოიყენოთ Ordinal Encoding (0, 1, 2) ნომინალურ ქალაქებზე, თორემ მოდელი ჩათვლის, რომ „ქუთაისი ორჯერ მეტია თბილისზე“!
-        </div>
-      </div>
-    </div>
-
-    <!-- Section 2: Validation & Data Leakage -->
-    <div class="grid grid-2">
-      <!-- Data Leakage -->
-      <div class="card card-rose">
-        <h3>მონაცემთა გაჟონვა (Data Leakage) — სასიკვდილო ცოდვა</h3>
-        <p style="font-size:0.88rem; color:var(--text-muted);">როდესაც სატესტო ნაკრების ინფორმაცია წვრთნის დროს შეუმჩნევლად იპარება მოდელში.</p>
-        <div class="callout-danger">
-          ❌ <strong>კატასტროფული შეცდომა:</strong><br>
-          <code>scaler.fit_transform(X)</code> &mdash; გაკეთდა დაყოფამდე!<br>
-          (სატესტო მონაცემების $\mu$ და $\sigma$ უკვე გაიგო სკეილერმა).
-        </div>
-        <div class="callout-warn" style="border-left-color: var(--accent-emerald); background: rgba(16, 185, 129, 0.1);">
-          ✅ <strong>სწორი არქიტექტურა:</strong><br>
-          1. <code>X_train, X_test = train_test_split(X)</code><br>
-          2. <code>scaler.fit(X_train)</code> &mdash; სწავლობს მხოლოდ Train-დან!<br>
-          3. <code>X_train_s = scaler.transform(X_train)</code><br>
-          4. <code>X_test_s = scaler.transform(X_test)</code>
-        </div>
-      </div>
-
-      <!-- K-Fold Cross Validation -->
-      <div class="card card-emerald">
-        <h3>$k$-Fold კროს-ვალიდაცია <span class="badge badge-emerald">Recipe 11.1</span></h3>
-        <p style="font-size:0.88rem; color:var(--text-muted);">მონაცემთა $k$ ნაწილად დაყოფა სტაბილური და ობიექტური შეფასებისთვის.</p>
-        <div class="formula-box">
-          $$\text{CV Score} = \frac{1}{k} \sum_{i=1}^k S_i$$
-        </div>
-        <ul class="details">
-          <li>მონაცემები იყოფა $k$ თანაბარ ბლოკად (Fold).</li>
-          <li>ციკლი ტრიალებს $k$-ჯერ: ყოველ ჯერზე 1 ბლოკი არის ტესტი, დანარჩენი $k-1$ — წვრთნა.</li>
-          <li><strong>Overfitting vs Underfitting:</strong>
-            <br>• პატარა $k$ (kNN-ში $k=1$) $\to$ გადავარჯიშება (Overfitting, მაღალი Variance).
-            <br>• დიდი $k$ ($k=50$) $\to$ ნაკლებ-სწავლება (Underfitting, მაღალი Bias).
-          </li>
-        </ul>
-        <div class="code-block">scores = cross_val_score(model, X_train, y_train, cv=5)</div>
-      </div>
-    </div>
+  <div id="tab-week3" class="tab-content active">
 
     <!-- Section 3: Evaluation Metrics & Confusion Matrix -->
     <div class="card card-indigo" style="margin-bottom: 24px;">
@@ -581,19 +494,19 @@
         <div style="background:rgba(0,0,0,0.2); padding:14px; border-radius:10px;">
           <h4 style="color:#38bdf8;">Accuracy (საერთო სიზუსტე)</h4>
           <div class="formula-box">$$\frac{TP + TN}{TP + TN + FP + FN}$$</div>
-          <p style="font-size:0.82rem; color:var(--text-muted);"><strong>პარადოქსი:</strong> უსარგებლოა დისბალანსირებულ კლასებში! (99% ჯანმრთელზე მოდელი, რომელიც სულ 0-ს ამბობს, დებს 99%-ს, მაგრამ 100-ივე ავადმყოფს კლავს).</p>
+          <p style="font-size:0.82rem; color:var(--text-muted);"><strong>პარადოქსი (Accuracy Paradox):</strong> მატყუარაა დისბალანსირებულ მონაცემებზე! თუ 99% ჯანმრთელია, მოდელი, რომელიც ყოველთვის 0-ს პროგნოზირებს, მიიღებს 99%-იან სიზუსტეს, მაგრამ ყველა რეალურ ავადმყოფს გამოტოვებს.</p>
         </div>
 
         <div style="background:rgba(0,0,0,0.2); padding:14px; border-radius:10px;">
           <h4 style="color:#fde68a;">Precision (სიზუსტე პროგნოზში)</h4>
           <div class="formula-box">$$\frac{TP}{TP + FP}$$</div>
-          <p style="font-size:0.82rem; color:var(--text-muted);"><strong>ინტუიცია:</strong> როცა მოდელი ყვირის „ავად ხარ!“, რა ალბათობითაა მართალი? მნიშვნელოვანია, როცა FP ძვირია (მაგ. სპამ-ფილტრი).</p>
+          <p style="font-size:0.82rem; color:var(--text-muted);"><strong>ინტუიცია:</strong> როდესაც მოდელი პროგნოზირებს „ავად ხარ!“, რა ალბათობითაა მართალი? მნიშვნელოვანია, როცა ცრუ განგაში (FP) ძვირი ჯდება (მაგ. სპამ-ფილტრი).</p>
         </div>
 
         <div style="background:rgba(0,0,0,0.2); padding:14px; border-radius:10px;">
           <h4 style="color:#fca5a5;">Recall / Sensitivity (მგრძნობელობა)</h4>
           <div class="formula-box">$$\frac{TP}{TP + FN}$$</div>
-          <p style="font-size:0.82rem; color:var(--text-muted);"><strong>ინტუიცია:</strong> ყველა არსებული ავადმყოფიდან რამდენი დაიჭირა? კრიტიკულია მედიცინაში, სადაც FN (გამოტოვება) სიკვდილია!</p>
+          <p style="font-size:0.82rem; color:var(--text-muted);"><strong>ინტუიცია:</strong> რეალური ავადმყოფებიდან რამდენი გამოავლინა მოდელმა? კრიტიკულია მედიცინაში, სადაც დაავადების გამოტოვება (FN) სახიფათოა.</p>
         </div>
 
         <div style="background:rgba(0,0,0,0.2); padding:14px; border-radius:10px;">
@@ -601,6 +514,187 @@
           <div class="formula-box">$$2 \cdot \frac{Precision \cdot Recall}{Precision + Recall}$$</div>
           <p style="font-size:0.82rem; color:var(--text-muted);"><strong>ინტუიცია:</strong> Precision-ისა და Recall-ის ჰარმონიული საშუალო. დაბალია, თუ რომელიმე მათგანი მიზერულია.</p>
         </div>
+      </div>
+    </div>
+
+    <!-- Section 2: ROC & AUC -->
+    <div class="grid grid-2">
+      <!-- ROC Curve -->
+      <div class="card card-cyan">
+        <h3>ROC მრუდი <span class="badge badge-cyan">Recipe 11.5</span></h3>
+        <p style="font-size:0.88rem; color:var(--text-muted);">მოდელი ალბათობას გვაძლევს, საბოლოო კლასს კი <strong>ზღურბლი</strong> (Threshold) განსაზღვრავს. ROC აჩვენებს, რა ხდება ზღურბლის ცვლილებისას.</p>
+        <ul class="details">
+          <li><strong>TPR (True Positive Rate / Recall):</strong> რეალური პოზიტივებიდან რამდენი დაიჭირა მოდელმა (ვცდილობთ გავზარდოთ, $Y$ ღერძი).</li>
+          <li><strong>FPR (False Positive Rate):</strong> ჯანმრთელებიდან რამდენზე მოხდა ცრუ განგაში (ვცდილობთ შევამციროთ, $X$ ღერძი): $FPR = \frac{FP}{TN + FP}$.</li>
+          <li><strong>ზღურბლის დაწევა:</strong> მეტ პოზიტივს ვიჭერთ (TPR იზრდება), მაგრამ ცრუ განგაშიც მატულობს (FPR იზრდება).</li>
+          <li><strong>მრუდი:</strong> ყოველი წერტილი შეესაბამება ერთ ზღურბლს. რაც უფრო ახლოსაა მრუდი ზედა-მარცხენა კუთხესთან $(0, 1)$, მით უკეთესია მოდელი.</li>
+        </ul>
+        <div class="code-block">fpr, tpr, thr = roc_curve(y_test, y_proba)</div>
+      </div>
+
+      <!-- AUC -->
+      <div class="card card-emerald">
+        <h3>AUC — ფართობი მრუდის ქვეშ <span class="badge badge-emerald">ერთი რიცხვი</span></h3>
+        <p style="font-size:0.88rem; color:var(--text-muted);">მოდელის ხარისხი ყველა შესაძლო ზღურბლზე ერთად — ერთი რიცხვით 0-დან 1-მდე.</p>
+        <ul class="details">
+          <li><strong>AUC = 1.0:</strong> იდეალური მოდელი.</li>
+          <li><strong>AUC = 0.5:</strong> მონეტის აგდება (დიაგონალი) — მოდელმა არაფერი ისწავლა (შემთხვევითი გამოცნობა).</li>
+          <li><strong>ინტუიცია:</strong> შემთხვევით არჩეული დაავადებული და შემთხვევით არჩეული ჯანმრთელი — AUC არის ალბათობა იმისა, რომ მოდელი დაავადებულს უფრო მაღალ ალბათობას მიანიჭებს.</li>
+          <li><strong>უპირატესობა:</strong> არ არის დამოკიდებული ერთ კონკრეტულ ზღურბლზე და ობიექტურია დისბალანსირებულ კლასებზეც.</li>
+        </ul>
+        <div class="code-block">y_proba = model.predict_proba(X_test)[:, 1]<br>auc = roc_auc_score(y_test, y_proba)</div>
+      </div>
+    </div>
+
+    <!-- Section 3: PCA (conceptual) -->
+    <div class="grid">
+      <!-- PCA Geometry -->
+      <div class="card card-cyan">
+        <h3>PCA — ღერძების შემობრუნება <span class="badge badge-cyan">Recipe 9.1</span></h3>
+        <p style="font-size:0.88rem; color:var(--text-muted);">მაღალგანზომილებიან მონაცემებს (მაგ. 64 პიქსელს) თვალით ვერ აღვიქვამთ, თანაც ზედმეტი სვეტები kNN-საც ურთულებს მეზობლების პოვნას. PCA არცერთ სვეტს არ შლის — ის ატრიალებს კოორდინატთა ღერძებს იმ მიმართულებით, სადაც მონაცემთა გაბნევა (დისპერსია) მაქსიმალურია.</p>
+        <ul class="details">
+          <li><strong>PC1 (პირველი მთავარი კომპონენტი):</strong> ღერძი, რომლის გასწვრივაც მონაცემთა გაბნევა მაქსიმალურია.</li>
+          <li><strong>PC2 (მეორე მთავარი კომპონენტი):</strong> PC1-ის მკაცრად მართობული ($90^\circ$) ღერძი, რომელიც დარჩენილ გაბნევას იჭერს.</li>
+          <li><strong>განზომილების შეკუმშვა:</strong> ვტოვებთ მხოლოდ პირველ რამდენიმე ღერძს — მონაცემი გადადის ნაკლებ სვეტზე არსებითი ინფორმაციის შენარჩუნებით.</li>
+          <li><strong>ჩრდილის ანალოგია:</strong> სწორი კუთხით დანათებული ფანარი 3D ჩაიდნის 2D ჩრდილში სახელურსაც ინარჩუნებს და ფორმასაც.</li>
+          <li><strong>Unsupervised (ზედამხედველობის გარეშე):</strong> PCA არ უყურებს პასუხების სვეტს ($y$), ის ეყრდნობა მხოლოდ მახასიათებლების ($X$) გეომეტრიულ გაბნევას.</li>
+        </ul>
+        <div class="code-block">pca = PCA(n_components=2)<br>X_2d = pca.fit_transform(X_scaled)</div>
+      </div>
+
+      <!-- Explained Variance -->
+      <div class="card card-emerald">
+        <h3>ახსნილი დისპერსია & Scree Plot <span class="badge badge-emerald">k-ს შერჩევა</span></h3>
+        <p style="font-size:0.88rem; color:var(--text-muted);">რამდენ კომპონენტს ვტოვებთ? ვუყურებთ, რამდენ ინფორმაციას (დისპერსიას) ინახავს პირველი რამდენიმე ღერძი.</p>
+        <ul class="details">
+          <li><strong>explained_variance_ratio_:</strong> თითოეული კომპონენტის მიერ ახსნილი დისპერსიის წილი (ჯამი = 1.0 ან 100%).</li>
+          <li><strong>კუმულაციური ჯამი:</strong> რამდენ პროცენტს ინახავს პირველი $k$ კომპონენტი ერთად.</li>
+          <li><strong>Scree Plot / Elbow:</strong> გრაფიკზე ვეძებთ „იდაყვს“ ან სასურველ ზღვარს (მაგ. 90% ან 95%).</li>
+          <li><strong>Shape:</strong> 500 სტრიქონი × 20 სვეტი $\to$ <code>PCA(n_components=5)</code> $\to$ <code>(500, 5)</code>.</li>
+        </ul>
+        <div class="code-block">cum = np.cumsum(PCA().fit(X_scaled).explained_variance_ratio_)<br>n_95 = np.argmax(cum >= 0.95) + 1</div>
+      </div>
+    </div>
+
+    <!-- Section 4: PCA golden rules -->
+    <div class="grid grid-2">
+      <div class="card card-amber">
+        <h3>PCA-ს ოქროს წესი: ჯერ სკალირება <span class="badge badge-amber">Recipe 4.2</span></h3>
+        <p style="font-size:0.88rem; color:var(--text-muted);">PCA ეძებს მაქსიმალურ გაშლილობას — ამიტომ დიდი რიცხვების მქონე სვეტი ყველაფერს „ჩაყლაპავს“.</p>
+        <ul class="details">
+          <li><strong>მაგალითი:</strong> თუ გარბენი არის $0 - 300{,}000$ კმ, ხოლო ძრავის მოცულობა $1.0 - 5.0$ ლ, PC1 თითქმის 100%-ით გარბენის ღერძს დაემთხვევა მხოლოდ დიდი რიცხვების გამო.</li>
+          <li><strong>მიზეზი:</strong> დისპერსიის სხვაობა განპირობებულია საზომი ერთეულებით და არა რეალური ინფორმაციული წონით.</li>
+        </ul>
+        <div class="callout-warn">
+          ⚠️ <strong>ოქროს წესი:</strong> PCA-მდე ყოველთვის <code>StandardScaler</code>!
+        </div>
+      </div>
+
+      <div class="card card-rose">
+        <h3>გაჟონვა PCA-შიც (Data Leakage)</h3>
+        <p style="font-size:0.88rem; color:var(--text-muted);">II კვირის წესი აქაც ურყევია: PCA-ც „სწავლობს“ მონაცემთა განლაგებიდან (პოულობს ღერძებს), ამიტომ ისიც მხოლოდ Train-ზე უნდა გაიწვრთნას (fit).</p>
+        <div class="callout-danger">
+          ❌ <code>pca.fit(X)</code> &mdash; გაკეთდა <code>train_test_split</code>-მდე!
+        </div>
+        <div class="callout-warn" style="border-left-color: var(--accent-emerald); background: rgba(16, 185, 129, 0.1);">
+          ✅ <code>pca.fit_transform(X_train)</code> და <code>pca.transform(X_test)</code><br>
+          ან საუკეთესო პრაქტიკა: ყველაფერი ერთ <code>Pipeline</code>-ში!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 1: WEEK 2 (DATA PREPROCESSING, VALIDATION & LEAKAGE)       -->
+  <!-- ============================================================ -->
+  <div id="tab-week2" class="tab-content">
+
+    <!-- Section 1: Preprocessing -->
+    <div class="grid">
+      <!-- StandardScaler -->
+      <div class="card card-cyan">
+        <h3>StandardScaler (სტანდარტიზაცია) <span class="badge badge-cyan">Recipe 4.2</span></h3>
+        <p style="font-size:0.88rem; color:var(--text-muted);">ცვლის მახასიათებელს ისე, რომ საშუალო გახდეს 0, ხოლო სტანდარტული გადახრა — 1.</p>
+        <div class="formula-box">
+          $$z = \frac{x - \mu}{\sigma}$$
+        </div>
+        <ul class="details">
+          <li><strong>$\mu$ (Mean):</strong> სვეტის საშუალო არითმეტიკული.</li>
+          <li><strong>$\sigma$ (Std Dev):</strong> მონაცემთა გაბნევის საზომი (დისპერსიის ფესვი).</li>
+          <li><strong>რატომ kNN-ისთვის?</strong> თუ ხელფასი არის 5,000 და ასაკი 30, ევკლიდურ მანძილში ხელფასი სრულად „ჩაყლაპავს“ ასაკს. სტანდარტიზაცია ყველა სვეტს ერთ ენაზე ამეტყველებს!</li>
+        </ul>
+        <div class="code-block">scaler = StandardScaler()<br>X_train_scaled = scaler.fit_transform(X_train)<br>X_test_scaled = scaler.transform(X_test)</div>
+      </div>
+
+      <!-- MinMaxScaler -->
+      <div class="card card-indigo">
+        <h3>MinMaxScaler (ნორმალიზაცია) <span class="badge badge-cyan">Recipe 4.1</span></h3>
+        <p style="font-size:0.88rem; color:var(--text-muted);">მონაცემებს კუმშავს მკაცრად [0, 1] (ან [-1, 1]) შუალედში.</p>
+        <div class="formula-box">
+          $$x_{scaled} = \frac{x - x_{min}}{x_{max} - x_{min}}$$
+        </div>
+        <ul class="details">
+          <li><strong>როდის ვიყენებთ?</strong> როცა ვიცით მკაცრი საზღვრები (მაგ. გამოსახულების პიქსელები 0-255) და არ გვინდა უარყოფითი რიცხვები.</li>
+          <li><strong>სისუსტე:</strong> ზემგრძნობიარეა ამოვარდნილ წერტილებზე (Outliers) — 1 უზარმაზარი რიცხვი ყველა დანარჩენს ნულთან მიჭყლეტს.</li>
+        </ul>
+        <div class="code-block">scaler = MinMaxScaler()<br>X_train_scaled = scaler.fit_transform(X_train)<br>X_test_scaled = scaler.transform(X_test)</div>
+      </div>
+
+      <!-- Missing Values & Encoding -->
+      <div class="card card-amber">
+        <h3>გაწმენდა & კოდირება <span class="badge badge-amber">Recipe 3.11 & 5.1</span></h3>
+        <ul class="details">
+          <li><strong>SimpleImputer (გამოტოვებული მნიშვნელობები):</strong>
+            <br>• <code>strategy='mean'</code> (საშუალო) / <code>'median'</code> (მედიანა — გამძლეა Outlier-ებზე).
+            <br>• კატეგორიულისთვის: <code>strategy='most_frequent'</code> (მოდა).
+          </li>
+          <li><strong>One-Hot Encoding (კატეგორიები $\to$ რიცხვები):</strong>
+            <br>თუ სვეტში წერია: <em>["თბილისი", "ბათუმი", "ქუთაისი"]</em>, იქმნება 3 ახალი ორობითი სვეტი (0 ან 1).
+          </li>
+        </ul>
+        <div class="callout-warn">
+          ⚠️ <strong>ოქროს წესი:</strong> არასოდეს გამოიყენოთ Ordinal Encoding (0, 1, 2) ნომინალურ ქალაქებზე, თორემ მოდელი ჩათვლის, რომ „ქუთაისი ორჯერ მეტია თბილისზე“!
+        </div>
+        <div class="code-block">imputer = SimpleImputer(strategy='mean')<br>encoder = OneHotEncoder(sparse_output=False, handle_unknown='ignore')</div>
+      </div>
+    </div>
+
+    <!-- Section 2: Validation & Data Leakage -->
+    <div class="grid grid-2">
+      <!-- Data Leakage -->
+      <div class="card card-rose">
+        <h3>მონაცემთა გაჟონვა (Data Leakage) — სასიკვდილო ცოდვა</h3>
+        <p style="font-size:0.88rem; color:var(--text-muted);">როდესაც სატესტო ნაკრების ინფორმაცია წვრთნის დროს შეუმჩნევლად იპარება მოდელში.</p>
+        <div class="callout-danger">
+          ❌ <strong>კატასტროფული შეცდომა:</strong><br>
+          <code>scaler.fit_transform(X)</code> &mdash; გაკეთდა დაყოფამდე!<br>
+          (სატესტო მონაცემების $\mu$ და $\sigma$ უკვე გაიგო სკეილერმა).
+        </div>
+        <div class="callout-warn" style="border-left-color: var(--accent-emerald); background: rgba(16, 185, 129, 0.1);">
+          ✅ <strong>სწორი არქიტექტურა:</strong><br>
+          1. <code>X_train, X_test = train_test_split(X)</code><br>
+          2. <code>scaler.fit(X_train)</code> &mdash; სწავლობს მხოლოდ Train-დან!<br>
+          3. <code>X_train_s = scaler.transform(X_train)</code><br>
+          4. <code>X_test_s = scaler.transform(X_test)</code>
+        </div>
+      </div>
+
+      <!-- K-Fold Cross Validation -->
+      <div class="card card-emerald">
+        <h3>$k$-Fold კროს-ვალიდაცია <span class="badge badge-emerald">Recipe 11.1</span></h3>
+        <p style="font-size:0.88rem; color:var(--text-muted);">მონაცემთა $k$ ნაწილად დაყოფა სტაბილური და ობიექტური შეფასებისთვის.</p>
+        <div class="formula-box">
+          $$\text{CV Score} = \frac{1}{k} \sum_{i=1}^k S_i$$
+        </div>
+        <ul class="details">
+          <li>მონაცემები იყოფა $k$ თანაბარ ბლოკად (Fold).</li>
+          <li>ციკლი ტრიალებს $k$-ჯერ: ყოველ ჯერზე 1 ბლოკი არის ტესტი, დანარჩენი $k-1$ — წვრთნა.</li>
+          <li><strong>$k$-Fold-ის $k$ vs kNN-ის $k$ (არ აურიოთ!):</strong>
+            <br>• <strong>$k$-Fold CV-ის $k$:</strong> ბლოკების რაოდენობაა (ჩვეულებრივ $k=5$ ან $k=10$).
+            <br>• <strong>kNN-ის $k$ (მეზობლების რაოდენობა):</strong> პატარა $k$ ($k=1$) $\to$ გადავარჯიშება (Overfitting, მაღალი Variance); დიდი $k$ ($k=50$) $\to$ ნაკლებ-სწავლება (Underfitting, მაღალი Bias).
+          </li>
+        </ul>
+        <div class="code-block">scores = cross_val_score(model, X_train, y_train, cv=5)</div>
       </div>
     </div>
 
@@ -751,6 +845,18 @@
               <td><code>f1_score(y_true, y_pred)</code></td>
               <td>დისბალანსირებული ბალანსი</td>
             </tr>
+            <tr>
+              <td><strong>FPR (ცრუ განგაშის წილი)</strong></td>
+              <td>$$\frac{FP}{FP + TN}$$</td>
+              <td><code>roc_curve(y_true, y_proba)</code></td>
+              <td>ROC მრუდის X ღერძი</td>
+            </tr>
+            <tr>
+              <td><strong>ROC-AUC</strong></td>
+              <td>ფართობი ROC მრუდის ქვეშ</td>
+              <td><code>roc_auc_score(y_true, y_proba)</code></td>
+              <td>ხარისხი ყველა ზღურბლზე ერთად</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -801,9 +907,33 @@ print(classification_report(y_test, y_pred))<br><br>
 <span style="color:#64748b;"># ROC-AUC ქულა:</span><br>
 auc = roc_auc_score(y_test, y_proba)<br>
 print(<span style="color:#a78bfa;">f"ROC-AUC: {auc:.4f}"</span>)<br><br>
-<span style="color:#64748b;"># აღრევის მატრიცა:</span><br>
+<span style="color:#64748b;"># აღრევის მატრიცა (sklearn-ში: პირველი სტრიქონია კლასი 0 [TN, FP], მეორე — კლასი 1 [FN, TP]):</span><br>
 cm = confusion_matrix(y_test, y_pred)<br>
 print(<span style="color:#a78bfa;">"Confusion Matrix:\n"</span>, cm)
+        </div>
+      </div>
+
+      <!-- PCA Pipeline -->
+      <div class="card card-indigo">
+        <h3>Pipeline: StandardScaler → PCA → kNN</h3>
+        <p style="font-size:0.88rem; color:var(--text-muted);">PCA გაჟონვისგან დაცულად და კომპონენტების რაოდენობის შერჩევა კროს-ვალიდაციით:</p>
+        <div class="code-block" style="color:#e2e8f0; line-height:1.5;">
+<span style="color:#f472b6;">from</span> sklearn.decomposition <span style="color:#f472b6;">import</span> PCA<br>
+<span style="color:#f472b6;">from</span> sklearn.datasets <span style="color:#f472b6;">import</span> load_digits<br><br>
+X, y = load_digits(return_X_y=<span style="color:#38bdf8;">True</span>)<br><br>
+<span style="color:#64748b;"># 1. Scree Plot-ისთვის: კუმულაციური დისპერსია</span><br>
+X_scaled = StandardScaler().fit_transform(X)<br>
+cum = np.cumsum(PCA().fit(X_scaled).explained_variance_ratio_)<br>
+n_95 = np.argmax(cum >= <span style="color:#38bdf8;">0.95</span>) + <span style="color:#38bdf8;">1</span><br><br>
+<span style="color:#64748b;"># 2. Pipeline: Scaler → PCA → kNN</span><br>
+pipe = Pipeline([<br>
+&nbsp;&nbsp;(<span style="color:#a78bfa;">'scaler'</span>, StandardScaler()),<br>
+&nbsp;&nbsp;(<span style="color:#a78bfa;">'pca'</span>, PCA(n_components=n_95)),<br>
+&nbsp;&nbsp;(<span style="color:#a78bfa;">'knn'</span>, KNeighborsClassifier(n_neighbors=<span style="color:#38bdf8;">5</span>))<br>
+])<br><br>
+<span style="color:#64748b;"># 3. შედარება 64D-თან კროს-ვალიდაციით</span><br>
+scores = cross_val_score(pipe, X, y, cv=<span style="color:#38bdf8;">5</span>)<br>
+print(<span style="color:#a78bfa;">f"PCA({n_95}D) CV: {scores.mean():.4f}"</span>)
         </div>
       </div>
     </div>
