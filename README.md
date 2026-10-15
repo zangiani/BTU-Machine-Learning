@@ -20,6 +20,7 @@
 | :------:| :-----------------------------------------------------------------------| :--------------------------------------------------------:| :----------------------------------:|
 | **01** | მსგავსება და უმოკლესი მეზობლები (kNN, მანძილის მეტრიკები)              | [student_notebook.ipynb](week_01/student_notebook.ipynb) | [solution.py](week_01/solution.py) |
 | **02** | მონაცემთა მომზადება და მოდელის შეფასება (Scaling, Validation, Metrics) | [student_notebook.ipynb](week_02/student_notebook.ipynb) | [solution.py](week_02/solution.py) |
+| **04** | სრული ML ციკლი ერთ ამოცანაზე (Pipeline, PCA, GridSearchCV)             | [student_notebook.ipynb](week_04/student_notebook.ipynb) | —                                  |
 
 ---
 
