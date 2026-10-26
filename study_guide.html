@@ -214,6 +214,7 @@
       font-weight: 700;
       margin-bottom: 12px;
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       gap: 8px;
     }
@@ -225,6 +226,8 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .badge-cyan { background: rgba(6, 182, 212, 0.2); color: #38bdf8; }
@@ -445,17 +448,220 @@
 
   <!-- Navigation Tabs -->
   <div class="tabs-nav">
-    <button class="tab-btn active" onclick="switchTab('tab-week3')">📙 III კვირა: მეტრიკები, ROC & PCA</button>
+    <button class="tab-btn active" onclick="switchTab('tab-week5')">📕 V კვირა: პერცეპტრონი, Loss & GD</button>
+    <button class="tab-btn" onclick="switchTab('tab-week3')">📙 III კვირა: მეტრიკები, ROC & PCA</button>
     <button class="tab-btn" onclick="switchTab('tab-week2')">📘 II კვირა: პრეპროცესინგი & გაჟონვა</button>
     <button class="tab-btn" onclick="switchTab('tab-week1')">📗 I კვირა: მსგავსება & kNN</button>
     <button class="tab-btn" onclick="switchTab('tab-formulas')">⚡ ფორმულების შპარგალკა</button>
-    <button class="tab-btn" onclick="switchTab('tab-code')">💻 Scikit-Learn Cheat-Sheet</button>
+    <button class="tab-btn" onclick="switchTab('tab-code')">💻 კოდის Cheat-Sheet</button>
   </div>
 
   <!-- ============================================================ -->
-  <!-- TAB 0: WEEK 3 (METRICS, ROC/AUC & PCA)                        -->
+  <!-- TAB 0: WEEK 5 (PERCEPTRON, LOSS & GRADIENT DESCENT)          -->
   <!-- ============================================================ -->
-  <div id="tab-week3" class="tab-content active">
+  <div id="tab-week5" class="tab-content active">
+
+    <!-- Section 1: Perceptron & Activation Functions -->
+    <div class="grid grid-2">
+      <!-- Perceptron as Weighted Voting -->
+      <div class="card card-cyan">
+        <h3>პერცეპტრონი — „შეწონილი კენჭისყრა“ <span class="badge badge-cyan">Recipe 1.16 & 20.2</span></h3>
+        <p style="font-size:0.88rem; color:var(--text-muted);">ნეირონი გადაწყვეტილებას იღებს როგორც ბანკის საკრედიტო კომიტეტი: იღებს ობიექტის მახასიათებლებს ($x_1, x_2, \dots$), თითოეულს ამრავლებს მის მნიშვნელოვნებაზე — <strong>წონაზე ($w_1, w_2, \dots$)</strong> — და უმატებს <strong>წანაცვლებას ($b$)</strong>.</p>
+        <div class="formula-box">
+          $$z = w_1 x_1 + w_2 x_2 + \dots + w_d x_d + b = \mathbf{w} \cdot \mathbf{x} + b$$
+        </div>
+        <ul class="details">
+          <li><strong>წონები ($\mathbf{w}$ — Weights):</strong> თითოეული მახასიათებლის „ხმის ძალა“. დადებითი წონა ($w_i > 0$) ზრდის ჯამს (ხელს უწყობს ნეირონის ჩართვას), უარყოფითი ($w_i < 0$) კი ამცირებს მას. გეომეტრიულად წონები განსაზღვრავს გამყოფი წრფის <strong>დახრილობას (კუთხეს)</strong>.</li>
+          <li><strong>წანაცვლება ($b$ — Bias):</strong> ნეირონის „საბაზისო განწყობა“ — რამდენად მარტივად ან რთულად აქტიურდება ის მანამ, სანამ მონაცემები შემოვა. გეომეტრიულად $b$ ამოძრავებს გამყოფ წრფეს <strong>ზემოთ-ქვემოთ</strong> სათავის მიმართ.</li>
+          <li><strong>გამყოფი წრფე (Decision Boundary):</strong> 2D სიბრტყეზე განტოლება $w_1 x_1 + w_2 x_2 + b = 0$ ქმნის <strong>ერთ სწორ წრფეს</strong> ($x_2 = -\frac{w_1 x_1 + b}{w_2}$). ამიტომ ერთ ცალკეულ პერცეპტრონს შეუძლია გაყოს მხოლოდ <strong>წრფივად გაყოფადი</strong> კლასები!</li>
+        </ul>
+        <div class="code-block">z = np.dot(X, w) + b &nbsp;# (N, D) @ (D,) -> (N,)</div>
+      </div>
+
+      <!-- Activation Functions: Step vs Sigmoid -->
+      <div class="card card-indigo">
+        <h3>აქტივაციის ფუნქცია: Step vs Sigmoid <span class="badge badge-emerald">გადაწყვეტილების მიღება</span></h3>
+        <p style="font-size:0.88rem; color:var(--text-muted);">მას შემდეგ, რაც ნეირონი დაითვლის შეწონილ ჯამს ($z$), აქტივაციის ფუნქცია წყვეტს, რა საბოლოო პასუხი ($\hat{y}$) დააბრუნოს მან:</p>
+        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0;">
+          <div style="background:rgba(0,0,0,0.25); padding:12px; border-radius:10px; border:1px solid var(--border-color);">
+            <h4 style="color:#38bdf8; font-size:0.95rem;">1. Step (მკაცრი ჩამრთველი)</h4>
+            <div class="formula-box" style="font-size:0.95rem; padding:8px;">
+              $$\hat{y} = \begin{cases} 1, & z \ge 0 \\ 0, & z < 0 \end{cases}$$
+            </div>
+            <p style="font-size:0.8rem; color:var(--text-muted);">კედლის ჩამრთველი (Switch): თუ $z < 0$, ნეირონი გამორთულია ($0$); თუ $z \ge 0$ — ჩართულია ($1$). შუალედური პასუხი არ არსებობს.</p>
+          </div>
+          <div style="background:rgba(0,0,0,0.25); padding:12px; border-radius:10px; border:1px solid var(--border-color);">
+            <h4 style="color:#34d399; font-size:0.95rem;">2. Sigmoid („რბილი step“)</h4>
+            <div class="formula-box" style="font-size:0.95rem; padding:8px;">
+              $$\sigma(z) = \frac{1}{1 + e^{-z}}$$
+            </div>
+            <p style="font-size:0.8rem; color:var(--text-muted);">დიმერი (მბრუნავი რეგულატორი): ნებისმიერ $z$-ს რბილად გარდაქმნის $0$-სა და $1$-ს შორის რიცხვად ($z=0 \Rightarrow 0.5$).</p>
+          </div>
+        </div>
+        <ul class="details">
+          <li><strong>რატომ გვჭირდება Sigmoid („რბილი step“)?</strong> Step ფუნქცია ნახტომის გარდა ყველგან ბრტყელია — წონის მცირე ცვლილებისას პასუხი არ იცვლება და ნეირონი ვერ იგებს, სწორ მხარეს წავიდა თუ არა. Sigmoid კი ქმნის გლუვ ფერდობს, სადაც ყველა წერტილში იზომება დახრილობა (წარმოებული).</li>
+          <li><strong>რიცხვითი მაგალითი:</strong> თუ $w_1 = 2, w_2 = -1, b = -3$ და შემოდის $x_1 = 2, x_2 = 2$, მაშინ $z = (2\cdot 2) + (-1\cdot 2) - 3 = -1 < 0 \implies \text{Step}(z) = \mathbf{0}$.</li>
+        </ul>
+        <div class="code-block">y_hat = np.where(z >= 0, 1, 0) &nbsp;# Step აქტივაცია<br>sigmoid = 1.0 / (1.0 + np.exp(-z)) &nbsp;# რბილი Step</div>
+      </div>
+    </div>
+
+    <!-- Section 2: Error, Loss (MSE), Derivative as Slope, and Gradient Descent -->
+    <div class="card card-emerald" style="margin-bottom: 24px;">
+      <h3>Error, Loss ფუნქცია (MSE), წარმოებული და გრადიენტული დაშვება <span class="badge badge-rose">კრიტიკულია გამოცდისთვის</span></h3>
+      <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:14px;">თავიდან ნეირონის წონები შემთხვევითია და ის ცდება. სწორი წონების საპოვნელად გვჭირდება: (1) გავზომოთ შეცდომა (Error & Loss), (2) გავიგოთ ფერდობის დახრილობა (Slope), და (3) გადავდგათ ნაბიჯი დაღმართზე (Gradient Descent).</p>
+
+      <!-- Step 1: From Error to Single Loss to Generalized MSE -->
+      <div style="background:rgba(0,0,0,0.22); padding:16px; border-radius:12px; border:1px solid var(--border-color); margin-bottom: 16px;">
+        <h4 style="color:#38bdf8; margin-bottom: 8px;">1. როგორ ვზომავთ შეცდომას: Error-იდან Loss-მდე და MSE-მდე</h4>
+        <p style="font-size:0.86rem; color:var(--text-muted); margin-bottom: 12px;">როდესაც ნეირონი აკეთებს ვარაუდს ($\hat{y}$, prediction), მას ვადარებთ ნამდვილ სწორ პასუხს ($y$, target) სამ მარტივ ეტაპად:</p>
+
+        <div class="grid" style="margin-bottom: 12px;">
+          <div style="background:rgba(255,255,255,0.03); padding:12px; border-radius:10px; border:1px solid var(--border-color);">
+            <strong style="color:#f8fafc; font-size:0.88rem;">① Error (აცდენა)</strong>
+            <div class="formula-box" style="font-size:1.02rem; padding:10px;">$$\text{Error} = y - \hat{y}$$</div>
+            <p style="font-size:0.8rem; color:var(--text-muted);">სხვაობა სწორ პასუხსა ($y$) და ნეირონის ვარაუდს ($\hat{y}$) შორის — გვიჩვენებს, რამდენით და რა მიმართულებით შევცდით.</p>
+          </div>
+
+          <div style="background:rgba(255,255,255,0.03); padding:12px; border-radius:10px; border:1px solid var(--border-color);">
+            <strong style="color:#38bdf8; font-size:0.88rem;">② Loss (1 გამომავალ ნეირონზე)</strong>
+            <div class="formula-box" style="font-size:1.02rem; padding:10px;">$$\text{Loss} = (y - \hat{y})^2$$</div>
+            <p style="font-size:0.8rem; color:var(--text-muted);">როცა გამოსავალში (output-ში) ერთი ნეირონია, Loss არის უბრალოდ აცდენის კვადრატი ($\text{Error}^2$) — გასაშუალოება საჭირო არ არის.</p>
+          </div>
+
+          <div style="background:rgba(255,255,255,0.03); padding:12px; border-radius:10px; border:1px solid var(--border-color);">
+            <strong style="color:#34d399; font-size:0.88rem;">③ განზოგადებული Loss (MSE)</strong>
+            <div class="formula-box" style="font-size:1.02rem; padding:10px;">$$\text{MSE} = \frac{1}{N} \sum_{i=1}^N (y_i - \hat{y}_i)^2$$</div>
+            <p style="font-size:0.8rem; color:var(--text-muted);">როცა გვაქვს $N$ გამომავალი მნიშვნელობა ან $N$ მაგალითი, ვკრებთ კვადრატულ შეცდომებს და ვყოფთ $N$-ზე (აქედან ჩნდება $\frac{1}{N}\sum$).</p>
+          </div>
+        </div>
+
+        <ul class="details" style="font-size:0.85rem;">
+          <li><strong>რატომ აგვყავს Error კვადრატში?</strong>
+            <br>• <strong>1. ნიშანი ქრება:</strong> $-2$-ით და $+2$-ით აცდენა თანაბრად მცდარია. კვადრატში აყვანით ორივე ხდება $+4$, ამიტომ საშუალოს გამოთვლისას უარყოფითი და დადებითი შეცდომები ერთმანეთს აღარ აბათილებს.
+            <br>• <strong>2. დიდი შეცდომა ბევრად მკაცრად ისჯება:</strong> თუ აცდენა 2-ჯერ გაიზრდება ($2 \to 4$), ჯარიმა (Loss) 4-ჯერ იზრდება ($4 \to 16$), ხოლო გრაფიკულად ვიღებთ გლუვ U-ს ფორმის პარაბოლას — <strong>„შეცდომის ხეობას“</strong>, რომლის ფსკერიც საუკეთესო წონას შეესაბამება.
+          </li>
+        </ul>
+      </div>
+
+      <!-- Steps 2 & 3: Derivative (Slope) and Gradient Descent -->
+      <div class="grid grid-2" style="margin-bottom: 16px;">
+        <!-- Step 2: Derivative as Slope -->
+        <div style="background:rgba(0,0,0,0.22); padding:16px; border-radius:12px; border:1px solid var(--border-color);">
+          <h4 style="color:#fde68a;">2. წარმოებული (Slope / დახრილობა) — „კომპასი ნისლში“</h4>
+          <p style="font-size:0.84rem; color:var(--text-muted); margin-bottom:8px;">სიმბოლო $L$ აღნიშნავს ზემოთ განმარტებულ <strong>Loss</strong> ფუნქციას: $L(w) = (y - \hat{y})^2$, სადაც $\hat{y} = w \cdot x + b$. გავაწარმოოთ $L(w)$ წონა $w$-ს მიმართ:</p>
+          <div class="formula-box" style="font-size:0.98rem;">
+            $$\begin{aligned} L(w) &= (y - \hat{y})^2 = \big(y - (w \cdot x + b)\big)^2 \\ \text{Slope} = \frac{dL}{dw} &= 2(y - \hat{y}) \cdot (-x) = -2(y - \hat{y}) \cdot x \end{aligned}$$
+          </div>
+          <ul class="details" style="font-size:0.84rem;">
+            <li><strong>როგორ მივიღეთ $-2(y - \hat{y}) \cdot x$? (რთული ფუნქციის გაწარმოება):</strong>
+              <br>• <strong>1. გარე კვადრატის გაწარმოება:</strong> $(u^2)' = 2u$ წესით წინ ჩამოდის $2$-იანი და გვრჩება $2(y - \hat{y})$.
+              <br>• <strong>2. შიდა გამოსახულების გაწარმოება:</strong> ფრჩხილის შიგნით წერია $y - w \cdot x - b$. მისი წარმოებული $w$-ს მიმართ არის <strong>$-x$</strong> (რადგან $w \cdot x$ გამოკლებულია!), ხოლო $b$-ს მიმართ — <strong>$-1$</strong> ($\frac{dL}{db} = -2(y - \hat{y})$).
+            </li>
+            <li>წარმოებული არის Loss-ის მრუდის <strong>დახრილობა (Slope)</strong> იმ წერტილში, სადაც ახლა ვდგავართ:
+              <br>• <strong>თუ $\frac{dL}{dw} > 0$ (დადებითია):</strong> მარჯვნივ აღმართია $\implies$ წონა $w$ უნდა <strong>შევამციროთ</strong>.
+              <br>• <strong>თუ $\frac{dL}{dw} < 0$ (უარყოფითია):</strong> მარჯვნივ დაღმართია $\implies$ წონა $w$ უნდა <strong>გავზარდოთ</strong>.
+              <br>• <strong>თუ $\frac{dL}{dw} = 0$ (ნულია):</strong> ფერდობი ჰორიზონტალურია $\implies$ <strong>ხეობის ფსკერზე (მინიმუმში) ვართ!</strong>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Step 3: Gradient Descent -->
+        <div style="background:rgba(0,0,0,0.22); padding:16px; border-radius:12px; border:1px solid var(--border-color);">
+          <h4 style="color:#34d399;">3. გრადიენტული დაშვება (Gradient Descent)</h4>
+          <p style="font-size:0.84rem; color:var(--text-muted); margin-bottom:8px;">ახლა ჩავსვათ ჩვენ მიერ ნაპოვნი წარმოებული $\frac{dL}{dw} = -2(y - \hat{y}) \cdot x$ გრადიენტული დაშვების ფორმულაში:</p>
+          <div class="formula-box" style="font-size:0.98rem;">
+            $$\begin{aligned} w_{\text{new}} &= w_{\text{old}} - \eta \cdot \frac{dL}{dw} \\ &= w_{\text{old}} - \eta \cdot \big(-2(y - \hat{y}) \cdot x\big) \\ &= w_{\text{old}} + 2 \cdot \eta \cdot (y - \hat{y}) \cdot x \end{aligned}$$
+          </div>
+          <ul class="details" style="font-size:0.84rem;">
+            <li><strong>რატომ წერია საწყის ფორმულაში მინუსი ($-$)?</strong> წარმოებული ($\frac{dL}{dw}$) ყოველთვის გვიჩვენებს აღმართს (Loss-ის ზრდის მხარეს). მინუს ნიშანი გვაიძულებს წავიდეთ აღმართის <strong>საპირისპიროდ</strong> — ანუ დაღმართზე!</li>
+            <li><strong>რატომ გადაიქცა მინუსი პლუსად ($+$)?</strong> რადგან თვითონ წარმოებული $\frac{dL}{dw} = -2(y - \hat{y}) \cdot x$ შეიცავს მინუს ნიშანს, ფორმულის მინუსი და წარმოებულის მინუსი ერთმანეთს აბათილებს ($- \cdot (-) = +$), ხოლო კვადრატის გაწარმოებიდან ჩამოსული <strong>$2$-იანი</strong> წინ მამრავლად რჩება!</li>
+            <li><strong>ბუნებრივი დამუხრუჭება ფსკერთან:</strong> ნაბიჯის რეალური სიდიდეა $\eta \cdot \frac{dL}{dw}$. ფსკერთან მიახლოებისას ფერდობი სწორდება ($\frac{dL}{dw} \to 0$), ამიტომ ნაბიჯები <strong>ავტომატურად პატარავდება</strong> მაშინაც კი, როცა $\eta$ უცვლელია!</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout-warn" style="border-left-color: var(--accent-cyan); background: rgba(6, 182, 212, 0.1); margin-bottom: 0;">
+        💡 <strong>საკონტროლო მაგალითი:</strong> ვთქვათ, ვდგავართ ხეობის მარცხენა კედელზე ($w = 1$), სადაც დახრილობა უარყოფითია ($\frac{dL}{dw} = -4$). ფორმულაში ჩასმით ვიღებთ: $w_{\text{new}} = 1 - \eta(-4) = 1 + 4\eta$ &mdash; მინუსისა და მინუსის ნამრავლი იძლევა პლუსს, ამიტომ <strong>წონა $w$ გაიზრდება</strong> და მარჯვნივ (ფსკერისკენ) გადაინაცვლებს!
+      </div>
+    </div>
+
+    <!-- Section 3: Learning Rate Dilemma & Perceptron Update Rule -->
+    <div class="grid grid-2">
+      <!-- Learning Rate Regimes -->
+      <div class="card card-amber">
+        <h3>სწავლის ტემპი (Learning Rate) — ნაბიჯის ზომა <span class="badge badge-amber">Goldilocks ეფექტი</span></h3>
+        <p style="font-size:0.88rem; color:var(--text-muted);">თუ წარმოებული გვეუბნება <strong>საით წავიდეთ</strong> (მიმართულებას), სწავლის ტემპი $\eta$ (`learning_rate`) განსაზღვრავს <strong>რამხელა ნაბიჯი გადავდგათ</strong>:</p>
+        <ul class="details" style="margin-top:10px;">
+          <li>🐢 <strong>ძალიან პატარა ($\eta = 0.001$ — „ჭიანჭველის ნაბიჯები“):</strong> ალგორითმი სწორ მხარეს მიდის, მაგრამ უკიდურესად პატარა ნაბიჯებით; სასწავლო დრო (ეპოქები) იწურება იქამდე, სანამ ფსკერს მიაღწევს.</li>
+          <li>🎯 <strong>ოპტიმალური ($\eta = 0.1$ — „ოქროს შუალედი“):</strong> როცა ფერდობი ციცაბოა, დგამს დიდ ნაბიჯებს, ხოლო ფსკერთან მიახლოებისას ნელდება და სწრაფად ჩერდება მინიმუმში.</li>
+          <li>💥 <strong>ძალიან დიდი ($\eta > 1.0$ — „გოლიათის ნახტომი და აფეთქება“):</strong> ნაბიჯი იმდენად დიდია, რომ ალგორითმი გადაახტება ხეობის ფსკერს და მოპირდაპირე კედელზე უფრო მაღლა ეჯახება! ყოველ ნაბიჯზე Loss კატასტროფულად იზრდება ($10 \to 1000 \to \text{inf} / \text{NaN}$) — <strong>განშლადობა (Divergence)</strong>.</li>
+        </ul>
+        <div class="callout-danger">
+          🩺 <strong>5-წამიანი დიაგნოსტიკა:</strong> თუ სწავლისას Loss კლების ნაცვლად იზრდება ($\to \text{inf}$), მიზეზია <strong>ძალიან დიდი Learning Rate</strong> (ან დაუსკალირებელი მონაცემი). გამოსავალი: შეამცირეთ <code>lr</code> 10-ჯერ ან 100-ჯერ!
+        </div>
+      </div>
+
+      <!-- Rosenblatt's Perceptron Update Rule & StandardScaler -->
+      <div class="card card-rose">
+        <h3>პერცეპტრონის წონების განახლება & StandardScaler <span class="badge badge-rose">Recipe 4.2 & 20.1</span></h3>
+        <p style="font-size:0.88rem; color:var(--text-muted);">ზემოთ გამოყვანილი გრადიენტული დაშვების ფორმულიდან პირდაპირ ვიღებთ თითოეულ მაგალითზე $(\mathbf{x}_i, y_i)$ წონებისა და წანაცვლების განახლების წესს:</p>
+        <div class="formula-box" style="font-size:1.02rem;">
+          $$\begin{aligned} \mathbf{w}_{\text{new}} &= \mathbf{w}_{\text{old}} + 2 \cdot \eta \cdot (y_i - \hat{y}_i) \cdot \mathbf{x}_i \\ b_{\text{new}} &= b_{\text{old}} + 2 \cdot \eta \cdot (y_i - \hat{y}_i) \end{aligned}$$
+        </div>
+        <ul class="details">
+          <li><strong>რატომ წერია აქ პლუსი ($+$) და $2$-იანი, როცა გრადიენტულ დაშვებაში მინუსი ($-$) იყო?</strong> გრადიენტულ დაშვებაში გვაქვს $\mathbf{w}_{\text{old}} - \eta \cdot \frac{dL}{d\mathbf{w}}$, მაგრამ თვითონ წარმოებული უარყოფითია: $\frac{dL}{d\mathbf{w}} = -2(y_i - \hat{y}_i)\mathbf{x}_i$. ჩასმისას ორი მინუსი იძლევა <strong>პლუსს ($+$)</strong>, ხოლო კვადრატის გაწარმოებიდან ჩამოსული <strong>$2$-იანი</strong> წინ რჩება ($\eta$-ს არ მიეკუთვნება!).</li>
+          <li><strong>როცა პროგნოზი სწორია ($\hat{y}_i = y_i$):</strong> აცდენა ნულია ($y_i - \hat{y}_i = 0$), ამიტომ შესაკრები ნულდება და <strong>წონები საერთოდ არ იცვლება!</strong> ნეირონი წონებს აკორექტირებს მხოლოდ მაშინ, როცა ცდება.</li>
+          <li><strong>რატომ არის აუცილებელი <code>StandardScaler</code> ნეირონისთვის?</strong> დააკვირდით ფორმულას: წონის შესაცვლელი სიდიდე პირდაპირ მრავლდება მახასიათებლის მნიშვნელობაზე ($\mathbf{x}_i$-ზე)! თუ ერთი სვეტი არის „ხელფასი“ ($0 - 100{,}000$), ხოლო მეორე — „სტაჟი“ ($0 - 5$), მაშინ პირველი წონის ცვლილება $100{,}000$-ზე გამრავლდება და უზარმაზარ ნახტომებს გააკეთებს (აფეთქდება), ხოლო მეორე წონა თითქმის ვერ დაიძვრება ადგილიდან. <code>StandardScaler</code> ყველა სვეტს აყენებს ერთსა და იმავე მასშტაბში ($\mu=0, \sigma=1$), რათა ყველა წონა თანაბარი სისწრაფით ისწავლებოდეს.</li>
+        </ul>
+        <div class="code-block">error = y_i - y_hat<br>w = w + 2 * lr * error * x_i<br>b = b + 2 * lr * error</div>
+      </div>
+    </div>
+
+    <!-- Section 4: Fence-Building Table (kNN vs Perceptron) -->
+    <div class="card card-indigo">
+      <h3>საზღვრების გავლება (Fence-Building): „ზარმაცი მზეპირებელი“ (kNN) vs „მოაზროვნე ნეირონი“ (პერცეპტრონი)</h3>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>კრიტერიუმი</th>
+              <th>$k$-Nearest Neighbors ($k\text{NN}$ — I კვირა)</th>
+              <th>პერცეპტრონი (Perceptron — V კვირა)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>სწავლების ტიპი</strong></td>
+              <td><strong>Lazy Learner (ზარმაცი):</strong> წვრთნისას არაფერს სწავლობს, უბრალოდ იმახსოვრებს მთელ სასწავლო ცხრილს.</td>
+              <td><strong>Eager / Parametric Learner:</strong> წვრთნისას (`fit`) პოულობს კანონზომიერებას — ოპტიმალურ წონებს ($\mathbf{w}, b$).</td>
+            </tr>
+            <tr>
+              <td><strong>მეხსიერება (მაგ. $1{,}000{,}000 \times 10$)</strong></td>
+              <td>ინახავს $10{,}000{,}000$-ვე რიცხვს მეხსიერებაში ($O(N \cdot d)$).</td>
+              <td>სწავლის შემდეგ ივიწყებს ცხრილს და ინახავს მხოლოდ $10$ წონას + $1$ წანაცვლებას = <strong>$11$ რიცხვს</strong> ($O(d)$)!</td>
+            </tr>
+            <tr>
+              <td><strong>პროგნოზის სისწრაფე (`predict`)</strong></td>
+              <td>ნელია — ახალ წერტილს სათითაოდ ადარებს ყველა არსებულ ჩანაწერს ($O(N \cdot d)$).</td>
+              <td>მყისიერია — აკეთებს მხოლოდ ერთ სკალარულ ნამრავლს <code>np.dot(x, w) + b</code> ($O(d)$).</td>
+            </tr>
+            <tr>
+              <td><strong>გადაწყვეტილების საზღვარი</strong></td>
+              <td>რთული, ტეხილი, არაწრფივი საზღვარი (დამოკიდებულია $k$-ზე).</td>
+              <td>მკაცრად <strong>ერთი სწორი წრფე</strong> (ჰიპერსიბრტყე: $\mathbf{w}\cdot\mathbf{x} + b = 0$). ვერ ჭრის XOR-ს!</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 1: WEEK 3 (METRICS, ROC/AUC & PCA)                        -->
+  <!-- ============================================================ -->
+  <div id="tab-week3" class="tab-content">
 
     <!-- Section 3: Evaluation Metrics & Confusion Matrix -->
     <div class="card card-indigo" style="margin-bottom: 24px;">
@@ -681,7 +887,7 @@
 
       <!-- K-Fold Cross Validation -->
       <div class="card card-emerald">
-        <h3>$k$-Fold კროს-ვალიდაცია <span class="badge badge-emerald">Recipe 11.1</span></h3>
+        <h3>k-Fold კროს-ვალიდაცია <span class="badge badge-emerald">Recipe 11.1</span></h3>
         <p style="font-size:0.88rem; color:var(--text-muted);">მონაცემთა $k$ ნაწილად დაყოფა სტაბილური და ობიექტური შეფასებისთვის.</p>
         <div class="formula-box">
           $$\text{CV Score} = \frac{1}{k} \sum_{i=1}^k S_i$$
@@ -857,6 +1063,48 @@
               <td><code>roc_auc_score(y_true, y_proba)</code></td>
               <td>ხარისხი ყველა ზღურბლზე ერთად</td>
             </tr>
+            <tr>
+              <td><strong>ნეირონის შეწონილი ჯამი</strong></td>
+              <td>$$z = \mathbf{w} \cdot \mathbf{x} + b$$</td>
+              <td><code>z = np.dot(X, w) + b</code></td>
+              <td>პერცეპტრონის შეწონილი კენჭისყრა</td>
+            </tr>
+            <tr>
+              <td><strong>Step / Sigmoid აქტივაცია</strong></td>
+              <td>$$\sigma(z) = \frac{1}{1 + e^{-z}}$$</td>
+              <td><code>np.where(z >= 0, 1, 0)</code></td>
+              <td>მკაცრი ჩამრთველი vs „რბილი step“</td>
+            </tr>
+            <tr>
+              <td><strong>Error & ერთი მაგალითის Loss</strong></td>
+              <td>$$\text{Error} = y - \hat{y}, \quad \text{Loss} = (y - \hat{y})^2$$</td>
+              <td><code>loss = (y_i - y_hat) ** 2</code></td>
+              <td>აცდენა და კვადრატული დანაკარგი</td>
+            </tr>
+            <tr>
+              <td><strong>MSE Loss (განზოგადებული)</strong></td>
+              <td>$$\frac{1}{N} \sum_{i=1}^N (y_i - \hat{y}_i)^2$$</td>
+              <td><code>np.mean((y - y_hat) ** 2)</code></td>
+              <td>საშუალო კვადრატული შეცდომა $N$ მაგალითზე</td>
+            </tr>
+            <tr>
+              <td><strong>Loss-ის წარმოებული (Slope)</strong></td>
+              <td>$$\frac{dL}{dw} = -2(y - \hat{y}) \cdot x$$</td>
+              <td><code>grad = -2 * (y_i - y_hat) * x_i</code></td>
+              <td>$L = (y - (wx + b))^2$-ის გაწარმოება $w$-თი</td>
+            </tr>
+            <tr>
+              <td><strong>გრადიენტული დაშვება</strong></td>
+              <td>$$w_{\text{new}} = w_{\text{old}} - \eta \cdot \frac{dL}{dw}$$</td>
+              <td><code>w = w - lr * grad</code></td>
+              <td>ნაბიჯი დახრილობის საპირისპიროდ</td>
+            </tr>
+            <tr>
+              <td><strong>პერცეპტრონის განახლება</strong></td>
+              <td>$$\mathbf{w} \leftarrow \mathbf{w} + 2\eta (y - \hat{y})\mathbf{x}$$</td>
+              <td><code>w += 2 * lr * (y_i - y_hat) * x_i</code></td>
+              <td>წონების კორექცია ($- \cdot (-) = +$)</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -868,6 +1116,34 @@
   <!-- ============================================================ -->
   <div id="tab-code" class="tab-content">
     <div class="grid grid-2">
+      <!-- Week 5: Perceptron & Gradient Descent in NumPy -->
+      <div class="card card-rose">
+        <h3>პერცეპტრონი & გრადიენტული დაშვება (NumPy)</h3>
+        <p style="font-size:0.88rem; color:var(--text-muted);">V კვირის სრული შაბლონი: 1D გრადიენტული დაშვება და 2D პერცეპტრონი 5 ხაზში:</p>
+        <div class="code-block" style="color:#e2e8f0; line-height:1.5;">
+<span style="color:#64748b;"># 1. გრადიენტული დაშვება 1D ფუნქციაზე: L(w) = (w - 3)^2 + 2</span><br>
+w, lr = <span style="color:#38bdf8;">-4.0</span>, <span style="color:#38bdf8;">0.2</span><br>
+<span style="color:#f472b6;">for</span> _ <span style="color:#f472b6;">in</span> range(<span style="color:#38bdf8;">15</span>):<br>
+&nbsp;&nbsp;grad = <span style="color:#38bdf8;">2.0</span> * (w - <span style="color:#38bdf8;">3.0</span>)&nbsp;&nbsp;<span style="color:#64748b;"># წარმოებული (დახრილობა)</span><br>
+&nbsp;&nbsp;w = w - lr * grad&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#64748b;"># ნაბიჯი დაღმართზე</span><br><br>
+<span style="color:#64748b;"># 2. სტანდარტიზაცია (აუცილებელია ნეირონისთვის!)</span><br>
+scaler = StandardScaler()<br>
+X_train = scaler.fit_transform(X_train)<br>
+X_test = scaler.transform(X_test)<br><br>
+<span style="color:#64748b;"># 3. პერცეპტრონი სუფთა NumPy-ით (5 ნაბიჯი)</span><br>
+w, b, lr = np.zeros(<span style="color:#38bdf8;">2</span>), <span style="color:#38bdf8;">0.0</span>, <span style="color:#38bdf8;">0.1</span><br>
+<span style="color:#f472b6;">for</span> epoch <span style="color:#f472b6;">in</span> range(<span style="color:#38bdf8;">15</span>):<br>
+&nbsp;&nbsp;<span style="color:#f472b6;">for</span> x_i, y_i <span style="color:#f472b6;">in</span> zip(X_train, y_train):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;z = np.dot(x_i, w) + b&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#64748b;"># 1. შეწონილი ჯამი</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;y_hat = <span style="color:#38bdf8;">1</span> <span style="color:#f472b6;">if</span> z >= <span style="color:#38bdf8;">0</span> <span style="color:#f472b6;">else</span> <span style="color:#38bdf8;">0</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#64748b;"># 2. Step აქტივაცია</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;error = y_i - y_hat&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#64748b;"># 3. შეცდომა (-1, 0, +1)</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;w = w + <span style="color:#38bdf8;">2</span> * lr * error * x_i&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#64748b;"># 4. წონების განახლება (-dL/dw)</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;b = b + <span style="color:#38bdf8;">2</span> * lr * error&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#64748b;"># 5. წანაცვლების განახლება (-dL/db)</span><br><br>
+<span style="color:#64748b;"># 4. პროგნოზი სატესტოზე (ვექტორიზებულად):</span><br>
+y_pred = np.where(np.dot(X_test, w) + b >= <span style="color:#38bdf8;">0</span>, <span style="color:#38bdf8;">1</span>, <span style="color:#38bdf8;">0</span>)
+        </div>
+      </div>
+
       <!-- Full Pipeline -->
       <div class="card card-emerald">
         <h3>გამართული Pipeline (გაჟონვისგან დაცული)</h3>
