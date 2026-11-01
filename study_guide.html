@@ -380,6 +380,63 @@
       margin: 12px 0;
     }
 
+    /* Interactive neuron-lines visualization (Week 6) */
+    .viz-stage {
+      background: #0b1220;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 8px;
+      min-width: 0;
+    }
+
+    .viz-stage canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1 / 1;
+      border-radius: 6px;
+    }
+
+    .viz-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin: 12px 0;
+    }
+
+    .viz-slider {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) 2.5em;
+      gap: 10px;
+      align-items: center;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin: 12px 0;
+    }
+
+    .viz-slider input { width: 100%; accent-color: var(--accent-amber); }
+    .viz-slider output { font-family: 'Fira Code', monospace; font-weight: 600; color: var(--text-main); text-align: right; }
+
+    .btn[aria-pressed="true"] { background: var(--accent-indigo); border-color: var(--accent-indigo); }
+
+    .viz-readout {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .viz-chip {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 4px 10px;
+    }
+
+    .viz-chip b { font-family: 'Fira Code', monospace; color: var(--text-main); margin-left: 4px; }
+
     /* Print View Styles */
     @media print {
       body {
@@ -448,7 +505,8 @@
 
   <!-- Navigation Tabs -->
   <div class="tabs-nav">
-    <button class="tab-btn active" onclick="switchTab('tab-week5')">📕 V კვირა: პერცეპტრონი, Loss & GD</button>
+    <button class="tab-btn active" onclick="switchTab('tab-week6')">🔮 VI კვირა: მრავალშრიანი ქსელი (MLP)</button>
+    <button class="tab-btn" onclick="switchTab('tab-week5')">📕 V კვირა: პერცეპტრონი, Loss & GD</button>
     <button class="tab-btn" onclick="switchTab('tab-week3')">📙 III კვირა: მეტრიკები, ROC & PCA</button>
     <button class="tab-btn" onclick="switchTab('tab-week2')">📘 II კვირა: პრეპროცესინგი & გაჟონვა</button>
     <button class="tab-btn" onclick="switchTab('tab-week1')">📗 I კვირა: მსგავსება & kNN</button>
@@ -457,9 +515,203 @@
   </div>
 
   <!-- ============================================================ -->
-  <!-- TAB 0: WEEK 5 (PERCEPTRON, LOSS & GRADIENT DESCENT)          -->
+  <!-- TAB 0: WEEK 6 (MULTI-LAYER PERCEPTRON, HIDDEN LAYERS & ReLU) -->
   <!-- ============================================================ -->
-  <div id="tab-week5" class="tab-content active">
+  <div id="tab-week6" class="tab-content active">
+
+    <!-- Section 1: Why 1 Neuron Fails (XOR) & ReLU as a Hinge -->
+    <div class="grid grid-2">
+      <!-- Card 1: Why 1 Neuron is Not Enough & XOR -->
+      <div class="card card-cyan">
+        <h3>რატომ არ ჰყოფნის 1 ნეირონი? — XOR პრობლემა <span class="badge badge-cyan">1 ხაზის წყევლა</span></h3>
+        <p style="font-size:0.88rem; color:var(--text-muted);">V კვირის პერცეპტრონს (0 ფარული შრით) აქვს მხოლოდ ერთი წრფივი განტოლება: $z = w_1 x_1 + w_2 x_2 + b = 0$. 2D რუკაზე ($X_1, X_2$) ეს განტოლება ავლებს <strong>მხოლოდ ერთ სწორ წრფეს</strong>, რომლის ერთ ნახევარს მოდელი არქმევს კლას $1$-ს, ხოლო მეორეს — კლას $0$-ს.</p>
+        <div class="formula-box" style="font-size:1.0rem;">
+          $$\text{XOR}: \quad (0,0)\to 0, \quad (1,1)\to 0, \quad (0,1)\to 1, \quad (1,0)\to 1$$
+        </div>
+        <ul class="details">
+          <li><strong>XOR („დერეფნის ორი ჩამრთველი“):</strong> ნათურა ინთება ($1$) მხოლოდ მაშინ, როცა ჩამრთველები განსხვავებულ პოზიციაშია: $(0,1)$ და $(1,0)$. თუ ორივე გამორთულია $(0,0)$ ან ორივე ჩართულია $(1,1)$, ნათურა ქრება ($0$).</li>
+          <li><strong>რატომ მარცხდება 1 პერცეპტრონი?</strong> კვადრატის მოპირდაპირე კუთხეებს ან ოკეანეში მდებარე ჩაკეტილ <strong>კუნძულს</strong> ერთი სწორი სახაზავით ვერასდროს შემოხაზავთ (XOR-ზე 1 წრფის მაქსიმუმია 4-დან 3 წერტილი = $75\%$).</li>
+          <li><strong>გამოსავალი:</strong> შემოსასვლელსა (Input) და გამოსასვლელს (Output) შორის ვამატებთ <strong>ფარულ შრეს (Hidden Layer)</strong> არაწრფივი <strong>ReLU</strong> აქტივაციით!</li>
+        </ul>
+      </div>
+
+      <!-- Card 2: ReLU Activation & Linear Collapse -->
+      <div class="card card-emerald">
+        <h3>ReLU აქტივაცია — „ანჯამა“ (სახსარი) <span class="badge badge-emerald">Recipe 20.2</span></h3>
+        <p style="font-size:0.88rem; color:var(--text-muted);">იმისათვის, რომ სწორი ხაზი „გადაიტეხოს“ და მრავალშრიანმა ქსელმა რთული ფორმები ააწყოს, ფარულ ნეირონებს სჭირდებათ არაწრფივი აქტივაციის ფუნქცია — <strong>ReLU (Rectified Linear Unit)</strong>:</p>
+        <div class="formula-box">
+          $$\text{ReLU}(z) = \max(0, z) = \begin{cases} z, & \text{თუ } z > 0 \\ 0, & \text{თუ } z \le 0 \end{cases}$$
+        </div>
+        <ul class="details">
+          <li><strong>ინტუიცია („ცალმხრივი სარქველი / მუხლი“):</strong> თუ ნეირონის შეწონილი ჯამი $z$ უარყოფითია, ReLU მას ანულებს ($0$); თუ დადებითია — ატარებს უცვლელად ($z$). გრაფიკულად ის ქმნის გადატეხვის წერტილს („მუხლს“).</li>
+          <li><strong>რა მოხდება ფარულ შრეებში ReLU-ს გარეშე? (კრიტიკული კითხვა!):</strong> თუ ReLU-ს გამოვრთავთ, წრფივი ფუნქციის ჩასმა წრფივ ფუნქციაში ისევ წრფივ ფუნქციას გვაძლევს:
+            <br>$$y = W_2(W_1 \mathbf{x} + \mathbf{b}_1) + \mathbf{b}_2 = W_{\text{new}}\mathbf{x} + \mathbf{b}_{\text{new}}$$
+            <br>ანუ <strong>ReLU-ს გარეშე 100 ფარული შრეც კი ჩამოიშლება 1 ჩვეულებრივ პერცეპტრონამდე</strong> და მაინც მხოლოდ 1 სწორ წრფეს გაავლებს!
+          </li>
+        </ul>
+        <div class="code-block">relu = np.maximum(0, z) &nbsp;# სუფთა NumPy-ში</div>
+      </div>
+    </div>
+
+    <!-- Section 2: Geometry of 0, 1, and 2 Hidden Layers (Island & Space Folding) -->
+    <div class="card card-indigo" style="margin-bottom: 24px;">
+      <h3>როგორ აგებს ფარული შრე ტეხილ საზღვრებს: 0, 1 და 2 ფარული შრის გეომეტრია <span class="badge badge-rose">კრიტიკულია გამოცდისთვის</span></h3>
+      <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:14px;">წარმოიდგინეთ რუკა ($X_1$ განედი, $X_2$ გრძედი), სადაც გვინდა ოკეანისგან ($0$) გამოვყოთ კუნძული ($1$) ან XOR-ის კუთხეები. ნახეთ, რას გვაძლევს თითოეული შრისა და ნეირონის დამატება:</p>
+
+      <div class="grid" style="margin-bottom: 14px;">
+        <!-- 0 Hidden Layers -->
+        <div style="background:rgba(0,0,0,0.25); padding:14px; border-radius:10px; border:1px solid var(--border-color);">
+          <strong style="color:#fb7185; font-size:0.92rem;">① 0 ფარული შრე (Perceptron)</strong>
+          <div class="formula-box" style="font-size:0.95rem; padding:8px;">$$w_1 X_1 + w_2 X_2 + b = 0$$</div>
+          <p style="font-size:0.82rem; color:var(--text-muted);">ავლებს მხოლოდ <strong>1 სწორ ხაზს</strong> მთელ რუკაზე. რუკას ჭრის ორ ნახევარსიბრტყედ — ჩაკეტილ ფიგურას ვერასდროს შემოხაზავს.</p>
+        </div>
+
+        <!-- 1 Hidden Layer -->
+        <div style="background:rgba(0,0,0,0.25); padding:14px; border-radius:10px; border:1px solid var(--border-color);">
+          <strong style="color:#38bdf8; font-size:0.92rem;">② 1 ფარული შრე + ReLU ($k$ ნეირონი)</strong>
+          <div class="formula-box" style="font-size:0.95rem; padding:8px;">$$h_i = \text{ReLU}(w_{i1}X_1 + w_{i2}X_2 + b_i)$$</div>
+          <p style="font-size:0.82rem; color:var(--text-muted);">თითოეული ნეირონი ავლებს <strong>თავის დამოუკიდებელ სწორ ხაზს</strong> (საკუთარი კუთხითა და წანაცვლებით) და ReLU-თი კრავს <strong>ტეხილ კონტურს / მრავალკუთხედს</strong> (სამკუთხედი, ნახევარწრე, კუნძული). რაც მეტი ნეირონია, მით უფრო გლუვია საზღვარი!</p>
+        </div>
+
+        <!-- 2 Hidden Layers -->
+        <div style="background:rgba(0,0,0,0.25); padding:14px; border-radius:10px; border:1px solid var(--border-color);">
+          <strong style="color:#34d399; font-size:0.92rem;">③ 2 ფარული შრე + ReLU</strong>
+          <div class="formula-box" style="font-size:0.95rem; padding:8px;">$$\text{კუნძული A} + \text{კუნძული B} - \text{ტბა}$$</div>
+          <p style="font-size:0.82rem; color:var(--text-muted);">პირველი შრე ქმნის ცალკეულ გვერდებს, ხოლო <strong>მე-2 შრე</strong> აერთიანებს მათ <strong>რამდენიმე ცალკეულ კუნძულად (არქიპელაგად)</strong> ან კუნძულის შიგნით ამოჭრის ტბას!</p>
+        </div>
+      </div>
+
+      <ul class="details" style="font-size:0.86rem;">
+        <li><strong>„ქაღალდის გადაკეცვის“ ინტუიცია (Space Folding):</strong> შეიძლება ითქვას, რომ ფარული შრე ReLU-ს დახმარებით <strong>კეცავს კოორდინატთა ფურცელს</strong> დიაგონალზე ისე, რომ XOR-ის მოპირდაპირე წითელი კუთხეები $(0,0)$ და $(1,1)$ ერთმანეთს დაედოს, რის შემდეგაც Output ნეირონი მათ ერთი სწორი ჭრით გამოყოფს!</li>
+        <li><strong>როგორ იკითხება არქიტექტურა კოდში:</strong> <code>MLPClassifier(hidden_layer_sizes=(32, 16), activation='relu')</code> ნიშნავს <strong>2 ფარულ შრეს</strong>: I ფარულ შრეში არის <strong>32 ნეირონი</strong>, ხოლო II ფარულ შრეში — <strong>16 ნეირონი</strong> (გამომავალ ნეირონს Scikit-Learn ბოლოში ავტომატურად ამატებს).</li>
+      </ul>
+    </div>
+
+    <!-- Section 2b: Interactive — more neurons = more lines -->
+    <div class="card card-cyan" style="margin-bottom: 24px;">
+      <h3>ვიზუალიზაცია: მეტი ნეირონი = მეტი ხაზი <span class="badge badge-cyan">ინტერაქციული</span></h3>
+      <div class="grid" style="margin-bottom: 0; align-items: start;">
+        <div style="min-width:0;">
+          <p style="font-size:0.88rem; color:var(--text-muted);">ფარული შრის ყოველი ReLU ნეირონი შესავალ სიბრტყეზე ავლებს <strong>ერთ სწორ ხაზს</strong> — იქ, სადაც მისი $z = 0$. ამ ხაზზე ნეირონი „ირთვება“. გამომავალი ნეირონი ფარული ნეირონების პასუხებს აჯამებს, ამიტომ საბოლოო საზღვარი <strong>სწორი მონაკვეთებისგან</strong> შედგება.</p>
+          <div class="formula-box" style="font-size:0.95rem; padding:8px;">$$h_i = \text{ReLU}(\mathbf{w}_i \cdot \mathbf{x} - r_i)$$</div>
+          <ul class="details">
+            <li><strong>1 ნეირონი:</strong> ნახევარსიბრტყე (ჩვეულებრივი პერცეპტრონის საზღვარი).</li>
+            <li><strong>2 ნეირონი:</strong> ზოლი. <strong>3 ნეირონი:</strong> სამკუთხედი — პირველი ჩაკეტილი „კუნძული“.</li>
+            <li><strong>6 და მეტი:</strong> თითქმის წრე — რაც მეტი ნეირონია, მით უფრო გლუვია საზღვარი.</li>
+          </ul>
+          <div class="viz-slider"><label for="nl-n">ნეირონები ფარულ შრეში</label><input id="nl-n" type="range" min="1" max="10" step="1" value="3"><output id="nl-nv">3</output></div>
+          <div class="viz-controls">
+            <button class="btn btn-print" id="nl-play">▶ 1-დან 10-მდე</button>
+            <button class="btn" data-nl="regular" aria-pressed="true">წესიერი წონები</button>
+            <button class="btn" data-nl="random" aria-pressed="false">🎲 შემთხვევითი</button>
+          </div>
+          <div class="viz-readout">
+            <span class="viz-chip">არქიტექტურა<b id="nl-arch">2 → 3 → 1</b></span>
+            <span class="viz-chip">ფორმა<b id="nl-shape">–</b></span>
+            <span class="viz-chip">სიზუსტე<b id="nl-acc">–</b></span>
+          </div>
+          <div class="callout-warn" style="margin-bottom:0;">
+            💡 <strong>რატომ არის მრავალკუთხედი წესიერი?</strong> „წესიერ“ რეჟიმში წონები ხელით არის შერჩეული: ხაზები ტრიალებს თანაბარი $360^\circ/N$ ბიჯით და ყველა ცენტრიდან ერთ მანძილზეა ($r = 1.1$). ნასწავლი ქსელი ასე სიმეტრიულად არ ალაგებს ხაზებს — დააჭირეთ „🎲 შემთხვევითი“-ს და ნახავთ უწესრიგო, მაგრამ მაინც ამოზნექილ მრავალკუთხედს.
+          </div>
+        </div>
+        <div class="viz-stage">
+          <canvas id="nl-canvas" width="480" height="480" aria-label="ფარული ნეირონების ხაზები და გადაწყვეტილების საზღვარი"></canvas>
+          <p style="font-size:0.8rem; color:var(--text-muted); margin-top:8px;">ყვითელი წყვეტილი ხაზები: თითო ფარული ნეირონის $z = 0$. ცისფერი არე: ქსელი ამბობს „კლასი 0“ (კუნძული), ვარდისფერი: „კლასი 1“ (ოკეანე).</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3: Simple Backpropagation & Pipeline(StandardScaler -> MLP) -->
+    <div class="grid grid-2">
+      <!-- Simple Backpropagation -->
+      <div class="card card-amber">
+        <h3>როგორ სწავლობს MLP? — Forward & Backpropagation (მარტივად!) <span class="badge badge-amber">ინტუიცია</span></h3>
+        <p style="font-size:0.88rem; color:var(--text-muted);">როგორ ხვდება ქსელი, ფარული შრის რომელი წონა შეცვალოს? სწავლება მიმდინარეობს 2 მარტივ ტაქტად:</p>
+        <ul class="details" style="margin-top:10px;">
+          <li><strong>1. Forward Pass (წინსვლა: მარცხნიდან მარჯვნივ $\to$):</strong> მონაცემი ($\mathbf{x}$) გადის ფარულ შრეებს (ReLU-თი), მიდის გამომავალ ნეირონამდე, ითვლება პროგნოზი ($\hat{y}$) და საბოლოო შეცდომა ($\text{Loss}$).</li>
+          <li><strong>2. Backpropagation (შეცდომის უკუგავრცელება: მარჯვნიდან მარცხნივ $\leftarrow$):</strong> საბოლოო შეცდომა ბრუნდება უკან, შრიდან შრეზე, და <strong>„ბრალი“ (პასუხისმგებლობა) ნაწილდება წონების პროპორციულად</strong>:
+            <br>• რომელ ფარულ ნეირონსაც <strong>დიდი წონა</strong> ჰქონდა საბოლოო პასუხში, მას მეტი წილი შეცდომა ბრუნდება და თავის წონებს გრადიენტული დაშვებით ასწორებს.
+            <br>• <strong>თუ ReLU ნეირონი გამორთული იყო ($z \le 0 \implies \text{ReLU} = 0$):</strong> მისი „სარქველი დაკეტილია“ — მას საბოლოო პასუხში მონაწილეობა საერთოდ არ მიუღია, ამიტომ შეცდომა მის უკან აღარ ატარებს და <strong>მისი წონები არ იცვლება ($0$)</strong>!
+          </li>
+        </ul>
+        <div class="callout-warn" style="margin-bottom:0;">
+          💡 <strong>მთავარი აზრი ერთ წინადადებაში:</strong> <em>Forward Pass</em> აკეთებს პროგნოზს წინ, ხოლო <em>Backpropagation</em> საბოლოო შეცდომას აბრუნებს უკან, რათა ყველა შრემ თავისი წვლილის მიხედვით განაახლოს წონები.
+        </div>
+      </div>
+
+      <!-- Pipeline & StandardScaler for MLP -->
+      <div class="card card-rose">
+        <h3>რატომ არის <code>Pipeline(StandardScaler → MLP)</code> აუცილებელი? <span class="badge badge-rose">Recipe 20.1</span></h3>
+        <p style="font-size:0.88rem; color:var(--text-muted);">მრავალშრიანი ნეირონული ქსელი (<code>MLPClassifier</code>) უკიდურესად მგრძნობიარეა მახასიათებლების მასშტაბების მიმართ:</p>
+        <ul class="details" style="margin-top:10px;">
+          <li><strong>რა მოხდება <code>StandardScaler</code>-ის გარეშე?</strong> თუ ცხრილში ერთი სვეტი არის <code>capital-gain</code> ($0 - 99{,}999$), ხოლო მეორე <code>hours-per-week</code> ($\approx 40$), დიდი რიცხვები პირველივე ფარულ შრეში გამოიწვევს გიგანტურ შეწონილ ჯამებს ($z$), ააფეთქებს ReLU-ს აქტივაციებს და გრადიენტული დაშვება ვერ კონვერგირდება.</li>
+          <li><strong>რატომ მაინცდამაინც <code>Pipeline</code>-ში?</strong> როდესაც ვიყენებთ 5-Fold კროს-ვალიდაციას (<code>cross_val_score</code>), <code>Pipeline</code> უზრუნველყოფს, რომ <code>StandardScaler</code>-მა $\mu$ და $\sigma$ ისწავლოს მხოლოდ სასწავლო ბლოკებზე და თავიდან აგვაცილოს <strong>მონაცემთა გაჟონვა (Data Leakage)</strong>.</li>
+        </ul>
+        <div class="code-block">mlp_pipe = Pipeline([<br>&nbsp;&nbsp;("prep", preprocessor), &nbsp;# Imputer + StandardScaler + OneHot<br>&nbsp;&nbsp;("mlp", MLPClassifier(hidden_layer_sizes=(32, 16), activation="relu"))<br>])</div>
+      </div>
+    </div>
+
+    <!-- Section 4: 3-Way Fence-Building Table (kNN vs Perceptron vs MLP) -->
+    <div class="card card-emerald">
+      <h3>საზღვრების გავლება (Fence-Building): <code>kNN</code> vs <code>Perceptron</code> vs <code>MLPClassifier</code></h3>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>კრიტერიუმი</th>
+              <th>$k$-Nearest Neighbors ($k\text{NN}$ — I კვირა)</th>
+              <th>პერცეპტრონი (Perceptron — V კვირა)</th>
+              <th>მრავალშრიანი ქსელი (MLP — VI კვირა)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>ფარული შრეები</strong></td>
+              <td>არ აქვს (ინახავს სასწავლო წერტილებს)</td>
+              <td><strong>0 ფარული შრე</strong> (მხოლოდ Input $\to$ Output)</td>
+              <td><strong>1 ან მეტი ფარული შრე</strong> + არაწრფივი <code>ReLU</code></td>
+            </tr>
+            <tr>
+              <td><strong>გადაწყვეტილების საზღვარი</strong></td>
+              <td>არაწრფივი (დამოკიდებულია მეზობლებზე $k$)</td>
+              <td>მკაცრად <strong>1 სწორი წრფე</strong> (ჰიპერსიბრტყე)</td>
+              <td><strong>ტეხილი / მრუდი / ნებისმიერი ფორმის</strong> საზღვარი</td>
+            </tr>
+            <tr>
+              <td><strong>ხსნის თუ არა XOR-ს?</strong></td>
+              <td>✅ კი</td>
+              <td>❌ <strong>ვერა!</strong> (მაქსიმუმ $75\%$ სიზუსტე)</td>
+              <td>✅ <strong>კი ($100\%$ სიზუსტე)</strong> სივრცის გადაკეცვით</td>
+            </tr>
+            <tr>
+              <td><strong>წვრთნის დრო (<code>fit</code>)</strong></td>
+              <td>მყისიერი ($O(1)$ — უბრალოდ იმახსოვრებს ბაზას)</td>
+              <td>სწრაფი (რამდენიმე ეპოქა)</td>
+              <td>საშუალო (ეპოქები: Forward + Backpropagation)</td>
+            </tr>
+            <tr>
+              <td><strong>პროგნოზის სისწრაფე (<code>predict</code>)</strong></td>
+              <td>🐢 <strong>ნელია!</strong> ახალ კლიენტს ადარებს ყველა სასწავლო ჩანაწერს ($O(N\cdot d)$)</td>
+              <td>⚡ მყისიერი: 1 სკალარული ნამრავლი</td>
+              <td>⚡ <strong>~20-ჯერ უფრო სწრაფი ვიდრე kNN!</strong> ამრავლებს მხოლოდ ნასწავლ წონების მატრიცებს</td>
+            </tr>
+            <tr>
+              <td><strong><code>StandardScaler</code> საჭიროა?</strong></td>
+              <td>✅ აუცილებელია (მანძილის გამო)</td>
+              <td>✅ აუცილებელია (გრადიენტის გამო)</td>
+              <td>✅ <strong>სასიცოცხლოდ აუცილებელია!</strong> (წონებისა და ReLU-ს გამო)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- TAB 1: WEEK 5 (PERCEPTRON, LOSS & GRADIENT DESCENT)          -->
+  <!-- ============================================================ -->
+  <div id="tab-week5" class="tab-content">
 
     <!-- Section 1: Perceptron & Activation Functions -->
     <div class="grid grid-2">
@@ -1105,6 +1357,24 @@
               <td><code>w += 2 * lr * (y_i - y_hat) * x_i</code></td>
               <td>წონების კორექცია ($- \cdot (-) = +$)</td>
             </tr>
+            <tr>
+              <td><strong>ReLU აქტივაცია</strong></td>
+              <td>$$\text{ReLU}(z) = \max(0, z)$$</td>
+              <td><code>np.maximum(0, z)</code></td>
+              <td>არაწრფივი „ანჯამა“ / მუხლი ფარულ შრეში</td>
+            </tr>
+            <tr>
+              <td><strong>ფარული შრე (Hidden Layer)</strong></td>
+              <td>$$\mathbf{h} = \text{ReLU}(W_1 \mathbf{x} + \mathbf{b}_1)$$</td>
+              <td><code>MLPClassifier(hidden_layer_sizes=(32, 16))</code></td>
+              <td>ტეხილი საზღვრებისა და სივრცის გადაკეცვა</td>
+            </tr>
+            <tr>
+              <td><strong>MLP ReLU-ს გარეშე (ჩამოშლა)</strong></td>
+              <td>$$W_2(W_1 \mathbf{x} + \mathbf{b}_1) + \mathbf{b}_2 = W_{\text{new}}\mathbf{x} + \mathbf{b}_{\text{new}}$$</td>
+              <td><code>activation='identity'</code> (მხოლოდ 1 წრფე!)</td>
+              <td>რატომ უდრის $N$ წრფივი შრე ისევ 1 ნეირონს</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -1116,6 +1386,29 @@
   <!-- ============================================================ -->
   <div id="tab-code" class="tab-content">
     <div class="grid grid-2">
+      <!-- Week 6: MLPClassifier on XOR & Real Pipeline -->
+      <div class="card card-indigo">
+        <h3>VI კვირა: MLPClassifier (XOR &amp; რეალური Pipeline)</h3>
+        <p style="font-size:0.88rem; color:var(--text-muted);">როგორ ვწვრთნით მრავალშრიან ქსელს XOR-ზე და რეალურ ცხრილოვან მონაცემებზე:</p>
+        <div class="code-block" style="color:#e2e8f0; line-height:1.5;">
+<span style="color:#f472b6;">from</span> sklearn.neural_network <span style="color:#f472b6;">import</span> MLPClassifier<br>
+<span style="color:#f472b6;">from</span> sklearn.linear_model <span style="color:#f472b6;">import</span> Perceptron<br><br>
+<span style="color:#64748b;"># 1. XOR-ის გადაჭრა: 1 ნეირონი (მარცხდება) vs MLP (100% სიზუსტე)</span><br>
+perc = Perceptron(max_iter=<span style="color:#38bdf8;">1000</span>, random_state=<span style="color:#38bdf8;">42</span>).fit(X_xor, y_xor)<br>
+mlp_xor = MLPClassifier(<br>
+&nbsp;&nbsp;hidden_layer_sizes=(<span style="color:#38bdf8;">8</span>, <span style="color:#38bdf8;">8</span>),&nbsp;&nbsp;<span style="color:#64748b;"># 2 ფარული შრე: 8 და 8 ნეირონი</span><br>
+&nbsp;&nbsp;activation=<span style="color:#a78bfa;">"relu"</span>,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#64748b;"># არაწრფივი ReLU ანჯამა</span><br>
+&nbsp;&nbsp;max_iter=<span style="color:#38bdf8;">1000</span>, random_state=<span style="color:#38bdf8;">42</span><br>
+).fit(X_xor, y_xor)<br><br>
+<span style="color:#64748b;"># 2. რეალურ მონაცემებზე: Pipeline(Preprocessor -> MLP)</span><br>
+mlp_pipe = Pipeline([<br>
+&nbsp;&nbsp;(<span style="color:#a78bfa;">"prep"</span>, preprocessor),&nbsp;&nbsp;<span style="color:#64748b;"># Imputer + StandardScaler + OneHot</span><br>
+&nbsp;&nbsp;(<span style="color:#a78bfa;">"mlp"</span>, MLPClassifier(hidden_layer_sizes=(<span style="color:#38bdf8;">32</span>, <span style="color:#38bdf8;">16</span>), activation=<span style="color:#a78bfa;">"relu"</span>, max_iter=<span style="color:#38bdf8;">50</span>))<br>
+])<br>
+f1_cv = cross_val_score(mlp_pipe, X_train, y_train, cv=<span style="color:#38bdf8;">5</span>, scoring=<span style="color:#a78bfa;">"f1"</span>).mean()
+        </div>
+      </div>
+
       <!-- Week 5: Perceptron & Gradient Descent in NumPy -->
       <div class="card card-rose">
         <h3>პერცეპტრონი & გრადიენტული დაშვება (NumPy)</h3>
@@ -1225,6 +1518,118 @@ print(<span style="color:#a78bfa;">f"PCA({n_95}D) CV: {scores.mean():.4f}"</span
     document.getElementById(tabId).classList.add('active');
     event.currentTarget.classList.add('active');
   }
+</script>
+
+<!-- Week 6 visualization: each hidden ReLU neuron = one line -->
+<script>
+(function () {
+  const cv = document.getElementById('nl-canvas');
+  if (!cv) return;
+  const slider = document.getElementById('nl-n'), playBtn = document.getElementById('nl-play');
+  const modeBtns = document.querySelectorAll('[data-nl]');
+  const COLORS = { bg: '#0b1220', grid: '#1e293b', axis: '#475569', c0: '#38bdf8', c1: '#fb7185', line: '#fbbf24', text: '#94a3b8' };
+  const SHAPES = ['ნახევარსიბრტყე', 'ზოლი', 'სამკუთხედი', 'ოთხკუთხედი', 'ხუთკუთხედი', 'ექვსკუთხედი'];
+  const VIEW = 2.45, TH = 0.02;
+  let N = +slider.value, mode = 'regular', timer = null;
+
+  function rng(seed) {
+    return function () {
+      seed = (seed + 0x6d2b79f5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  // circle data: class 0 inside r < 1, class 1 in the ring 1.35..2.1
+  const pts = [];
+  (function () {
+    const r = rng(5);
+    for (let i = 0; i < 110; i++) { const d = Math.sqrt(r()), t = r() * 2 * Math.PI; pts.push({ x: d * Math.cos(t), y: d * Math.sin(t), c: 0 }); }
+    for (let i = 0; i < 130; i++) { const d = 1.35 + r() * 0.75, t = r() * 2 * Math.PI; pts.push({ x: d * Math.cos(t), y: d * Math.sin(t), c: 1 }); }
+  })();
+
+  // neurons: direction angle and distance from origin of the line w·x = r
+  function neurons() {
+    const r = rng(100 + N), out = [];
+    for (let i = 0; i < N; i++) {
+      let a = (2 * Math.PI * i) / N, d = 1.1;
+      if (mode === 'random') { a += (r() - 0.5) * 0.4 * (2 * Math.PI / N); d = 1.0 + r() * 0.45; }
+      out.push({ nx: Math.cos(a), ny: Math.sin(a), d });
+    }
+    return out;
+  }
+  const score = (x, y, H) => { let s = 0; for (const h of H) s += Math.max(0, h.nx * x + h.ny * y - h.d); return TH - s; };
+
+  const off = document.createElement('canvas');
+  function draw() {
+    const rect = cv.getBoundingClientRect();
+    if (rect.width < 10) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2), w = Math.round(rect.width), h = w;
+    cv.width = w * dpr; cv.height = h * dpr;
+    const ctx = cv.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const s = w / (2 * VIEW), X = x => w / 2 + x * s, Y = y => h / 2 - y * s;
+    const H = neurons();
+
+    ctx.fillStyle = COLORS.bg; ctx.fillRect(0, 0, w, h);
+    // decision regions
+    const res = 120; off.width = res; off.height = res;
+    const oc = off.getContext('2d'), img = oc.createImageData(res, res);
+    for (let j = 0; j < res; j++) for (let i = 0; i < res; i++) {
+      const x = -VIEW + ((i + 0.5) / res) * 2 * VIEW, y = VIEW - ((j + 0.5) / res) * 2 * VIEW, k = (j * res + i) * 4;
+      const inside = score(x, y, H) > 0;
+      img.data[k] = inside ? 56 : 251; img.data[k + 1] = inside ? 189 : 113; img.data[k + 2] = inside ? 248 : 133; img.data[k + 3] = inside ? 60 : 34;
+    }
+    oc.putImageData(img, 0, 0);
+    ctx.imageSmoothingEnabled = true; ctx.drawImage(off, 0, 0, w, h);
+    // grid + axes
+    ctx.strokeStyle = COLORS.grid; ctx.lineWidth = 1; ctx.beginPath();
+    for (let g = -2; g <= 2; g += 0.5) { ctx.moveTo(X(g), 0); ctx.lineTo(X(g), h); ctx.moveTo(0, Y(g)); ctx.lineTo(w, Y(g)); }
+    ctx.stroke();
+    ctx.strokeStyle = COLORS.axis; ctx.beginPath(); ctx.moveTo(X(0), 0); ctx.lineTo(X(0), h); ctx.moveTo(0, Y(0)); ctx.lineTo(w, Y(0)); ctx.stroke();
+    // one dashed line per hidden neuron
+    ctx.font = '700 13px "Fira Code", monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    H.forEach((n, i) => {
+      const px = n.nx * n.d, py = n.ny * n.d, L = 10;
+      ctx.save(); ctx.strokeStyle = COLORS.line; ctx.lineWidth = 1.8; ctx.setLineDash([6, 5]); ctx.globalAlpha = 0.9;
+      ctx.beginPath(); ctx.moveTo(X(px - n.ny * L), Y(py + n.nx * L)); ctx.lineTo(X(px + n.ny * L), Y(py - n.nx * L)); ctx.stroke(); ctx.restore();
+      const lx = n.nx * (n.d + 0.45), ly = n.ny * (n.d + 0.45);
+      ctx.lineWidth = 4; ctx.strokeStyle = COLORS.bg; ctx.strokeText('h' + (i + 1), X(lx), Y(ly));
+      ctx.fillStyle = COLORS.line; ctx.fillText('h' + (i + 1), X(lx), Y(ly));
+    });
+    // data points: circles = class 0, squares = class 1
+    ctx.lineWidth = 1.2; ctx.strokeStyle = COLORS.bg;
+    for (const p of pts) {
+      ctx.fillStyle = p.c ? COLORS.c1 : COLORS.c0; ctx.beginPath();
+      if (p.c) ctx.rect(X(p.x) - 3.3, Y(p.y) - 3.3, 6.6, 6.6); else ctx.arc(X(p.x), Y(p.y), 3.8, 0, 2 * Math.PI);
+      ctx.fill(); ctx.stroke();
+    }
+    ctx.fillStyle = COLORS.text; ctx.font = '600 13px "Fira Code", monospace';
+    ctx.textAlign = 'right'; ctx.fillText('x₁', w - 8, Y(0) - 12);
+    ctx.textAlign = 'left'; ctx.fillText('x₂', X(0) + 8, 14);
+
+    let ok = 0; for (const p of pts) if ((score(p.x, p.y, H) > 0 ? 0 : 1) === p.c) ok++;
+    document.getElementById('nl-nv').textContent = N;
+    document.getElementById('nl-arch').textContent = '2 → ' + N + ' → 1';
+    document.getElementById('nl-shape').textContent = mode === 'random' && N >= 3 ? N + '-კუთხედი (უწესრიგო)' : N <= 6 ? SHAPES[N - 1] : N + '-კუთხედი ≈ წრე';
+    document.getElementById('nl-acc').textContent = Math.round((ok / pts.length) * 100) + '%';
+  }
+
+  function stop() { clearInterval(timer); timer = null; playBtn.textContent = '▶ 1-დან 10-მდე'; }
+  playBtn.addEventListener('click', () => {
+    if (timer) return stop();
+    N = 1; slider.value = 1; draw(); playBtn.textContent = '⏸ გაჩერება';
+    timer = setInterval(() => { if (N >= 10) return stop(); N++; slider.value = N; draw(); }, 1100);
+  });
+  slider.addEventListener('input', () => { if (timer) stop(); N = +slider.value; draw(); });
+  modeBtns.forEach(b => b.addEventListener('click', () => {
+    mode = b.dataset.nl;
+    modeBtns.forEach(o => o.setAttribute('aria-pressed', String(o === b)));
+    draw();
+  }));
+  new ResizeObserver(draw).observe(cv);
+})();
 </script>
 
 </body>
